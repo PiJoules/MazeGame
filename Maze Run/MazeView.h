@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  MyView.h
 //  Maze Run
 //
 //  Created by Leonard Chan on 8/10/14.
@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MyView.h"
 
-@interface ViewController : UIViewController
+@interface MazeView : UIView
+
+- (id)initWithFrame:(CGRect)frame width:(int)width height:(int)height;
 
 @end
