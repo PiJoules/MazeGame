@@ -10,8 +10,14 @@
 
 @interface MazeView : UIView
 
-- (id)initWithFrame:(CGRect)frame width:(int)width height:(int)height;
-- (id)initWithFrame:(CGRect)frame rowCount:(int)rows colCount:(int)cols horizontalWalls:(NSMutableArray*)horizontalwalls verticalWalls:(NSMutableArray*)verticalwalls;
+- (id)initWithFrame:(CGRect)frame startingPoint:(CGPoint)startingPoint rowCount:(int)rows colCount:(int)cols horizontalWalls:(NSMutableArray*)horizontalwalls verticalWalls:(NSMutableArray*)verticalwalls;
+
+- (void)moveUp;
+- (void)moveDown;
+- (void)moveLeft;
+- (void)moveRight;
+- (CGPoint)getCurrentPos;
+- (void)setCurrentPos:(CGPoint)nextPoint;
 
 @property NSMutableArray *hwalls; // horizontal
 @property NSMutableArray *vwalls; // vertical

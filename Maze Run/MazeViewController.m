@@ -19,6 +19,9 @@
     NSMutableArray *MazeCells;
     int rows;
     int cols;
+    
+    int currentX;
+    int currentY;
 }
 
 @synthesize hwalls;
@@ -31,6 +34,8 @@
     
     rows = 20;
     cols = 20;
+    currentX = 0;
+    currentY = 0;
     
     // 2d arrays of booleans signifying which horizontal/vertical walls should be up
     hwalls = [[NSMutableArray alloc] init];
@@ -51,9 +56,9 @@
         }
     }
     
-    [self generateMazeFrom:MazeCells startingAtX:0 Y:0];
+    [self generateMazeFrom:MazeCells startingAtX:currentX Y:currentY];
     
-    mv = [[MazeView alloc] initWithFrame:self.view.frame rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
+    mv = [[MazeView alloc] initWithFrame:self.view.frame startingPoint:CGPointMake(currentX, currentY) rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
     [self setView:mv];
     
     UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -69,10 +74,44 @@
     b.layer.borderColor = [UIColor blueColor].CGColor;
     [self.view addSubview:b];
     
+    // setup swipe recognizers
+    UISwipeGestureRecognizer *up = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeUp)];
+    up.direction = UISwipeGestureRecognizerDirectionUp;
+    [self.view addGestureRecognizer:up];
+    UISwipeGestureRecognizer *down = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeDown)];
+    down.direction = UISwipeGestureRecognizerDirectionDown;
+    [self.view addGestureRecognizer:down];
+    UISwipeGestureRecognizer *left = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeLeft)];
+    left.direction = UISwipeGestureRecognizerDirectionLeft;
+    [self.view addGestureRecognizer:left];
+    UISwipeGestureRecognizer *right = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeRight)];
+    right.direction = UISwipeGestureRecognizerDirectionRight;
+    [self.view addGestureRecognizer:right];
+    
+    // start the draw loop
     [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(drawLoop) userInfo:nil repeats:true];
 }
 
+- (void)swipeUp{
+    NSLog(@"up");
+    [mv moveUp];
+}
+- (void)swipeDown{
+    NSLog(@"down");
+    [mv moveDown];
+}
+- (void)swipeLeft{
+    NSLog(@"left");
+    [mv moveLeft];
+}
+- (void)swipeRight{
+    NSLog(@"right");
+    [mv moveRight];
+}
+
 - (void)reset{
+    [mv setCurrentPos:CGPointMake(0, 0)];
+    
     [MazeCells removeAllObjects];
     [vwalls removeAllObjects];
     [hwalls removeAllObjects];
@@ -93,7 +132,7 @@
 }
 
 - (void)drawLoop{
-    [self report_memory];
+    //[self report_memory];
     [self.view setNeedsDisplay];
 }
 

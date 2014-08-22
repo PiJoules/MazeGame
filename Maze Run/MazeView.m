@@ -9,63 +9,24 @@
 #import "MazeView.h"
 
 @implementation MazeView{
-    CGPoint center;
     float w,h;
-    float dx,dy;
-    float rad;
-    
-    float rw;
+    float rw; // row width
     int rcount; // rows
     int ccount; // cols
     int lineWidth;
+    
+    CGPoint point;
 }
 
 @synthesize hwalls;
 @synthesize vwalls;
 
-- (id)initWithFrame:(CGRect)frame width:(int)width height:(int)height{
+- (id)initWithFrame:(CGRect)frame startingPoint:(CGPoint)startingPoint rowCount:(int)rows colCount:(int)cols horizontalWalls:(NSMutableArray*)horizontalwalls verticalWalls:(NSMutableArray*)verticalwalls{
     self = [super initWithFrame:frame];
     self.backgroundColor = [UIColor whiteColor];
     
     w = [UIScreen mainScreen].bounds.size.width;
     h = [UIScreen mainScreen].bounds.size.height;
-    dx = 1;
-    dy = h/w;
-    rad = 40;
-    center = CGPointMake(-rad, -rad);
-    
-    rcount = width;
-    ccount = height;
-    rw = w/rcount;
-    lineWidth = 4;
-    
-    hwalls = [[NSMutableArray alloc] init];
-    for (int y = 0; y < rcount+1; y++){
-        [hwalls addObject:[[NSMutableArray alloc] init]];
-        for (int x = 0; x < ccount; x++){
-            [hwalls[y] addObject:[NSNumber numberWithBool:true]];
-        }
-    }
-    vwalls = [[NSMutableArray alloc] init];
-    for (int y = 0; y < rcount; y++){
-        [vwalls addObject:[[NSMutableArray alloc] init]];
-        for (int x = 0; x < ccount+1; x++){
-            [vwalls[y] addObject:[NSNumber numberWithBool:true]];
-        }
-    }
-    
-    return self;
-}
-- (id)initWithFrame:(CGRect)frame rowCount:(int)rows colCount:(int)cols horizontalWalls:(NSMutableArray*)horizontalwalls verticalWalls:(NSMutableArray*)verticalwalls{
-    self = [super initWithFrame:frame];
-    self.backgroundColor = [UIColor whiteColor];
-    
-    w = [UIScreen mainScreen].bounds.size.width;
-    h = [UIScreen mainScreen].bounds.size.height;
-    dx = 1;
-    dy = h/w;
-    rad = 40;
-    center = CGPointMake(-rad, -rad);
     
     rcount = rows;
     ccount = cols;
@@ -75,6 +36,8 @@
     hwalls = horizontalwalls;
     vwalls = verticalwalls;
     
+    point = startingPoint;
+    
     return self;
 }
 
@@ -82,14 +45,8 @@
     CGContextRef contextref = UIGraphicsGetCurrentContext(); // get current context
     CGContextSetLineWidth(contextref, 1); // set line width
     
-    center.x += dx;
-    center.y += dy;
-    if (center.x > w-rad && center.y > h-rad){
-        center.x = -rad;
-        center.y = -rad;
-    }
-    
-    CGRect r = CGRectMake(0, 0, rw, rw);
+    // draw blue box
+    CGRect r = CGRectMake(rw*point.x, rw*point.y, rw, rw);
     CGContextSetRGBFillColor(contextref, 0, 0, 1, 1);
     CGContextFillRect(contextref, r);
     r = CGRectMake(rw*(ccount-1), rw*(rcount-1), rw, rw);
@@ -115,6 +72,54 @@
             p.lineWidth = lineWidth;
             [p stroke];
         }
+    }
+}
+
+- (CGPoint)getCurrentPos{
+    return point;
+}
+- (void)setCurrentPos:(CGPoint)nextPoint{
+    point = nextPoint;
+}
+
+// movements
+- (void)moveUp{
+    if (![hwalls[(int)point.y][(int)point.x] boolValue]){
+        //NSLog(@"can move up");
+        point.y--;
+    }
+    else {
+        //NSLog(@"can't move up");
+    }
+}
+
+- (void)moveDown{
+    if (![hwalls[(int)point.y+1][(int)point.x] boolValue]){
+        //NSLog(@"can move down");
+        point.y++;
+    }
+    else {
+        //NSLog(@"can't move down");
+    }
+}
+
+- (void)moveLeft{
+    if (![vwalls[(int)point.y][(int)point.x] boolValue]){
+        //NSLog(@"can move left");
+        point.x--;
+    }
+    else {
+        //NSLog(@"can't move left");
+    }
+}
+
+- (void)moveRight{
+    if (![vwalls[(int)point.y][(int)point.x+1] boolValue]){
+        //NSLog(@"can move right");
+        point.x++;
+    }
+    else {
+        //NSLog(@"can't move right");
     }
 }
 
