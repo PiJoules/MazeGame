@@ -37,6 +37,11 @@
                BlueprintName = "Maze RunTests"
                ReferencedContainer = "container:Maze Run.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "Maze_RunTests/testExample">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

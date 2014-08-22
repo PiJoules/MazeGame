@@ -13,5 +13,6 @@
 
 @property NSMutableArray *hwalls;
 @property NSMutableArray *vwalls;
+@property MazeView *mv;
 
 @end

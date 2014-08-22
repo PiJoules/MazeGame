@@ -15,53 +15,81 @@
 
 @end
 
-@implementation MazeViewController
+@implementation MazeViewController{
+    NSMutableArray *MazeCells;
+    int rows;
+    int cols;
+}
 
 @synthesize hwalls;
 @synthesize vwalls;
+@synthesize mv;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    //NSLog(@"w:%f h:%f",[UIScreen mainScreen].bounds.size.width,[UIScreen mainScreen].bounds.size.height);
-    
-    int rows = 10;
-    int cols = 10;
-    MazeView *mv = [[MazeView alloc] initWithFrame:self.view.frame width:rows height:cols];
-    
-    [self setView:mv];
+    rows = 20;
+    cols = 20;
     
     // 2d arrays of booleans signifying which horizontal/vertical walls should be up
     hwalls = [[NSMutableArray alloc] init];
     vwalls = [[NSMutableArray alloc] init];
     
     // fill mazeCells and walls array
-    NSMutableArray *mazeCells = [[NSMutableArray alloc] init];
+    MazeCells = [[NSMutableArray alloc] init];
     for (int y = 0; y < rows+1; y++){
         if (y < rows){
-            [mazeCells addObject:[[NSMutableArray alloc] init]];
+            [MazeCells addObject:[[NSMutableArray alloc] init]];
             [vwalls addObject:[[NSMutableArray alloc] init]];
         }
         [hwalls addObject:[[NSMutableArray alloc] init]];
         for (int x = 0; x < cols+1; x++){
-            if (x < cols && y < rows) [mazeCells[y] addObject:[[MazeCell alloc] initWithX:x Y:y]];
+            if (x < cols && y < rows) [MazeCells[y] addObject:[[MazeCell alloc] initWithX:x Y:y]];
             if (y < rows) [vwalls[y] addObject:[NSNumber numberWithBool:true]];
             if (x < cols) [hwalls[y] addObject:[NSNumber numberWithBool:true]];
         }
     }
     
-    //[[mazeCells[0][7] walls] replaceObjectAtIndex:2 withObject:[NSNumber numberWithBool:false]];
-    //[self generateMazeFrom:mazeCells startingAtX:0 Y:0];
-    //NSLog(@"%@",[mazeCells[0][7] walls][2]);
-    //NSLog(@"%hhd",[mazeCells[0][0] visited]);
+    [self generateMazeFrom:MazeCells startingAtX:0 Y:0];
     
-    //MazeCell *temp = mazeCells[0][0];
-    //[temp setVisited:true];
-    //NSLog(@"%hhd",[mazeCells[0][0] visited]);
+    mv = [[MazeView alloc] initWithFrame:self.view.frame rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
+    [self setView:mv];
     
+    UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
+    [b addTarget:self action:@selector(reset) forControlEvents:UIControlEventTouchUpInside];
+    [b setTitle:@"Reset" forState:UIControlStateNormal];
+    float w = [UIScreen mainScreen].bounds.size.width;
+    float h = [UIScreen mainScreen].bounds.size.height;
+    [b sizeToFit];
+    b.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
+    b.frame = CGRectMake(w/2-b.frame.size.width, (h-w)/2+w-b.frame.size.height, b.frame.size.width*2, b.frame.size.height*2);
+    b.layer.cornerRadius = 10;
+    b.layer.borderWidth = 1;
+    b.layer.borderColor = [UIColor blueColor].CGColor;
+    [self.view addSubview:b];
     
     [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(drawLoop) userInfo:nil repeats:true];
+}
+
+- (void)reset{
+    [MazeCells removeAllObjects];
+    [vwalls removeAllObjects];
+    [hwalls removeAllObjects];
+    for (int y = 0; y < rows+1; y++){
+        if (y < rows){
+            [MazeCells addObject:[[NSMutableArray alloc] init]];
+            [vwalls addObject:[[NSMutableArray alloc] init]];
+        }
+        [hwalls addObject:[[NSMutableArray alloc] init]];
+        for (int x = 0; x < cols+1; x++){
+            if (x < cols && y < rows) [MazeCells[y] addObject:[[MazeCell alloc] initWithX:x Y:y]];
+            if (y < rows) [vwalls[y] addObject:[NSNumber numberWithBool:true]];
+            if (x < cols) [hwalls[y] addObject:[NSNumber numberWithBool:true]];
+        }
+    }
+    
+    [self generateMazeFrom:MazeCells startingAtX:0 Y:0];
 }
 
 - (void)drawLoop{
@@ -112,12 +140,41 @@
             [cellStack addObject:currentCell]; // add current cell to stack
             
             // remove the wall between the neighboring and current cell
-            /*if (neighbor.x < currentCell.x) [walls[y] replaceObjectAtIndex:currentCell.x withObject:[NSNumber numberWithBool:false]];
-            else if (neighbor.x > currentCell.x) [walls[y] replaceObjectAtIndex:currentCell.x+1 withObject:[NSNumber numberWithBool:false]];
-            else if (neighbor.y < currentCell.y) [walls[y] replaceObjectAtIndex:currentCell.x withObject:[NSNumber numberWithBool:false]];
-            else if (neighbor.y > currentCell.y) [walls[y] replaceObjectAtIndex:currentCell.x withObject:[NSNumber numberWithBool:false]];*/
+            if (neighbor.x < currentCell.x){
+                [vwalls[currentCell.y] replaceObjectAtIndex:currentCell.x withObject:[NSNumber numberWithBool:false]];
+            }
+            else if (neighbor.x > currentCell.x){
+                [vwalls[currentCell.y] replaceObjectAtIndex:currentCell.x+1 withObject:[NSNumber numberWithBool:false]];
+            }
+            else if (neighbor.y < currentCell.y){
+                [hwalls[currentCell.y] replaceObjectAtIndex:currentCell.x withObject:[NSNumber numberWithBool:false]];
+            }
+            else if (neighbor.y > currentCell.y){
+                [hwalls[currentCell.y+1] replaceObjectAtIndex:currentCell.x withObject:[NSNumber numberWithBool:false]];
+            }
             
             currentCell = neighbor; // make chosen neighbor the current cell
+            [currentCell setVisited:true]; // mark it as visited
+            unvisitedCellCount--;
+        }
+        else if ([cellStack count] > 0){
+            currentCell = [cellStack lastObject]; // pop last cell in stack and make it current cell
+            [cellStack removeLastObject];
+        }
+        else{
+            // find random unvisited cell and make it current cell and mark it as visited
+            BOOL dobreak = false;
+            for (int y = 0; y < [mazeCells count] && !dobreak; y++){
+                for (int x = 0; x < [mazeCells[y] count]; x++){
+                    if (![mazeCells[y][x] visited]){
+                        currentCell = mazeCells[y][x];
+                        [currentCell setVisited:true];
+                        unvisitedCellCount--;
+                        dobreak = true; // break out of outer for-loop
+                        break;
+                    }
+                }
+            }
         }
     }
     

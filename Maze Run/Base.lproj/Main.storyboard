@@ -9,8 +9,8 @@
             <objects>
                 <viewController id="vXZ-lx-hvc" customClass="MazeViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="WMB-gX-I2y"/>
-                        <viewControllerLayoutGuide type="bottom" id="vAc-hs-5fj"/>
+                        <viewControllerLayoutGuide type="top" id="Mpn-Do-NI1"/>
+                        <viewControllerLayoutGuide type="bottom" id="zBp-ej-GQN"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="cex-x0-YLP">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
