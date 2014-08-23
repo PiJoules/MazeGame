@@ -11,6 +11,7 @@
 @interface MazeView : UIView
 
 - (id)initWithFrame:(CGRect)frame startingPoint:(CGPoint)startingPoint rowCount:(int)rows colCount:(int)cols horizontalWalls:(NSMutableArray*)horizontalwalls verticalWalls:(NSMutableArray*)verticalwalls;
+- (void)setNewRows:(int)rows andCols:(int)cols;
 
 - (void)moveUp;
 - (void)moveDown;

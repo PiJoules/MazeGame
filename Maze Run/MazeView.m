@@ -31,7 +31,7 @@
     rcount = rows;
     ccount = cols;
     rw = w/rcount;
-    lineWidth = 4;
+    lineWidth = 2;
     
     hwalls = horizontalwalls;
     vwalls = verticalwalls;
@@ -39,6 +39,12 @@
     point = startingPoint;
     
     return self;
+}
+
+- (void)setNewRows:(int)rows andCols:(int)cols{
+    rcount = rows;
+    ccount = cols;
+    rw = w/rcount;
 }
 
 - (void)drawRect:(CGRect)rect{

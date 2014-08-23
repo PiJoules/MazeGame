@@ -32,10 +32,13 @@
 {
     [super viewDidLoad];
     
-    rows = 20;
-    cols = 20;
+    rows = 10;
+    cols = 10;
     currentX = 0;
     currentY = 0;
+    
+    float w = [UIScreen mainScreen].bounds.size.width;
+    float h = [UIScreen mainScreen].bounds.size.height;
     
     // 2d arrays of booleans signifying which horizontal/vertical walls should be up
     hwalls = [[NSMutableArray alloc] init];
@@ -61,18 +64,62 @@
     mv = [[MazeView alloc] initWithFrame:self.view.frame startingPoint:CGPointMake(currentX, currentY) rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
     [self setView:mv];
     
+    // add reset button
     UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
     [b addTarget:self action:@selector(reset) forControlEvents:UIControlEventTouchUpInside];
     [b setTitle:@"Reset" forState:UIControlStateNormal];
-    float w = [UIScreen mainScreen].bounds.size.width;
-    float h = [UIScreen mainScreen].bounds.size.height;
     [b sizeToFit];
     b.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
-    b.frame = CGRectMake(w/2-b.frame.size.width, (h-w)/2+w-b.frame.size.height, b.frame.size.width*2, b.frame.size.height*2);
+    b.frame = CGRectMake(0, (h-w)/2+w-b.frame.size.height, b.frame.size.width*2, b.frame.size.height*2);
     b.layer.cornerRadius = 10;
     b.layer.borderWidth = 1;
     b.layer.borderColor = [UIColor blueColor].CGColor;
     [self.view addSubview:b];
+    
+    // add directional buttons
+    float bw = 70;
+    float bh = 70;
+    // right button
+    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [rightButton addTarget:self action:@selector(swipeRight) forControlEvents:UIControlEventTouchUpInside];
+    [rightButton setTitle:@"Right" forState:UIControlStateNormal];
+    [rightButton sizeToFit];
+    rightButton.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
+    rightButton.frame = CGRectMake(w-bw, (h-w)/2+w-bh, bw, bh*2);
+    rightButton.layer.cornerRadius = 10;
+    rightButton.layer.borderWidth = 1;
+    rightButton.layer.borderColor = [UIColor blueColor].CGColor;
+    [self.view addSubview:rightButton];
+    // top button
+    UIButton *upButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [upButton addTarget:self action:@selector(swipeUp) forControlEvents:UIControlEventTouchUpInside];
+    [upButton setTitle:@"Up" forState:UIControlStateNormal];
+    upButton.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
+    upButton.frame = CGRectMake(w-bw-bw, (h-w)/2+w-bh, bw, bh);
+    upButton.layer.cornerRadius = 10;
+    upButton.layer.borderWidth = 1;
+    upButton.layer.borderColor = [UIColor blueColor].CGColor;
+    [self.view addSubview:upButton];
+    // down button
+    UIButton *downButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [downButton addTarget:self action:@selector(swipeDown) forControlEvents:UIControlEventTouchUpInside];
+    [downButton setTitle:@"Down" forState:UIControlStateNormal];
+    downButton.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
+    downButton.frame = CGRectMake(w-bw-bw, (h-w)/2+w, bw, bh);
+    downButton.layer.cornerRadius = 10;
+    downButton.layer.borderWidth = 1;
+    downButton.layer.borderColor = [UIColor blueColor].CGColor;
+    [self.view addSubview:downButton];
+    // left button
+    UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [leftButton addTarget:self action:@selector(swipeLeft) forControlEvents:UIControlEventTouchUpInside];
+    [leftButton setTitle:@"Left" forState:UIControlStateNormal];
+    leftButton.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
+    leftButton.frame = CGRectMake(w-bw*3, (h-w)/2+w-bh, bw, bh*2);
+    leftButton.layer.cornerRadius = 10;
+    leftButton.layer.borderWidth = 1;
+    leftButton.layer.borderColor = [UIColor blueColor].CGColor;
+    [self.view addSubview:leftButton];
     
     // setup swipe recognizers
     UISwipeGestureRecognizer *up = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeUp)];
@@ -93,20 +140,29 @@
 }
 
 - (void)swipeUp{
-    NSLog(@"up");
     [mv moveUp];
+    [self checkWin];
 }
 - (void)swipeDown{
-    NSLog(@"down");
     [mv moveDown];
+    [self checkWin];
 }
 - (void)swipeLeft{
-    NSLog(@"left");
     [mv moveLeft];
+    [self checkWin];
 }
 - (void)swipeRight{
-    NSLog(@"right");
     [mv moveRight];
+    [self checkWin];
+}
+
+- (void)checkWin{
+    CGPoint currentPos = [mv getCurrentPos];
+    if (currentPos.x == cols-1 && currentPos.y == rows-1){
+        NSLog(@"win");
+        [mv setNewRows:++rows andCols:++cols];
+        [self reset];
+    }
 }
 
 - (void)reset{
@@ -132,7 +188,7 @@
 }
 
 - (void)drawLoop{
-    //[self report_memory];
+    [self report_memory];
     [self.view setNeedsDisplay];
 }
 
