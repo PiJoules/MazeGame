@@ -10,4 +10,9 @@
 
 @interface TestView : UIView
 
+- (void)moveUp;
+- (void)moveDown;
+- (void)moveLeft;
+- (void)moveRight;
+
 @end
