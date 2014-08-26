@@ -12,7 +12,7 @@
 
 - (void)moveUp;
 - (void)moveDown;
-- (void)moveLeft;
-- (void)moveRight;
+- (BOOL)moveLeft;
+- (BOOL)moveRight;
 
 @end

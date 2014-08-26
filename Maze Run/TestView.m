@@ -217,7 +217,10 @@
 
 - (void)moveUp{
     dist--;
-    if (dist < 1) dist = 1;
+    if (dist < 1){
+        dist = 1;
+        NSLog(@"TestView: can't move up");
+    }
     else {
         for (int i = 0; i < leftHalls.count; i++){
             int val = [leftHalls[i] intValue]-1;
@@ -227,11 +230,15 @@
             int val = [rightHalls[i] intValue]-1;
             [rightHalls replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:val]];
         }
+        NSLog(@"TestView: can move up");
     }
 }
 - (void)moveDown{
     dist++;
-    if (dist > INITDIST) dist = INITDIST;
+    if (dist > INITDIST){
+        dist = INITDIST;
+        NSLog(@"TestView: can't move back");
+    }
     else {
         for (int i = 0; i < leftHalls.count; i++){
             int val = [leftHalls[i] intValue]+1;
@@ -241,30 +248,38 @@
             int val = [rightHalls[i] intValue]+1;
             [rightHalls replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:val]];
         }
+        NSLog(@"TestView: can move back");
     }
 }
-- (void)moveLeft{
+- (BOOL)moveLeft{
     for (NSNumber *n in leftHalls){
         if ([n intValue] == 1){
-            //NSLog(@"can turn left");
-            [self reset];
+            NSLog(@"TestView: can turn left");
+            //[self reset];
+            return true;
         }
     }
+    NSLog(@"TestVIew: can't turn left");
+    return false;
 }
-- (void)moveRight{
+- (BOOL)moveRight{
     for (NSNumber *n in rightHalls){
         if ([n intValue] == 1){
-            //NSLog(@"can turn right");
-            [self reset];
+            NSLog(@"TestView: can turn right");
+            //[self reset];
+            return true;
         }
     }
+    NSLog(@"TestView: can't turn right");
+    return false;
 }
 
-- (void)reset{
-    dist = arc4random_uniform(7)+3; // 0-9
+- (void)reset:(int)nextDist leftHalls:(NSArray*)nextLeftHalls rightHalls:(NSArray*)nextRightHalls{
+    //dist = arc4random_uniform(7)+3; // 0-9
+    dist = nextDist;
     INITDIST = dist;
     
-    NSMutableArray *nextLeftHalls = [[NSMutableArray alloc] init];
+    /*NSMutableArray *nextLeftHalls = [[NSMutableArray alloc] init];
     for (int i = 0; i < 2; i++){
         int val = arc4random_uniform(dist);
         if (arc4random_uniform(2) > 0){
@@ -277,9 +292,10 @@
     [nextLeftHalls sortUsingComparator:^NSComparisonResult(NSNumber *n1, NSNumber *n2){
         return [n1 compare:n2];
     }];
-    leftHalls = nextLeftHalls;
+    leftHalls = nextLeftHalls;*/
+    leftHalls = [NSMutableArray arrayWithArray:nextLeftHalls];
     
-    NSMutableArray *nextRightHalls = [[NSMutableArray alloc] init];
+    /*NSMutableArray *nextRightHalls = [[NSMutableArray alloc] init];
     for (int i = 0; i < 2; i++){
         int val = arc4random_uniform(dist);
         if (arc4random_uniform(2) > 0){
@@ -292,7 +308,8 @@
     [nextRightHalls sortUsingComparator:^NSComparisonResult(NSNumber *n1, NSNumber *n2){
         return [n1 compare:n2];
     }];
-    rightHalls = nextRightHalls;
+    rightHalls = nextRightHalls;*/
+    rightHalls = [NSMutableArray arrayWithArray:nextRightHalls];
 }
 
 @end

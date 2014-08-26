@@ -89,43 +89,51 @@
 }
 
 // movements
-- (void)moveUp{
+- (BOOL)moveUp{
     if (![hwalls[(int)point.y][(int)point.x] boolValue]){
-        //NSLog(@"can move up");
+        NSLog(@"MazeView: can move up");
         point.y--;
+        return true;
     }
     else {
-        //NSLog(@"can't move up");
+        NSLog(@"MazeView: can't move up");
+        return false;
     }
 }
 
-- (void)moveDown{
+- (BOOL)moveDown{
     if (![hwalls[(int)point.y+1][(int)point.x] boolValue]){
-        //NSLog(@"can move down");
+        NSLog(@"MazeView: can move down");
         point.y++;
+        return true;
     }
     else {
-        //NSLog(@"can't move down");
+        NSLog(@"MazeView: can't move down");
+        return false;
     }
 }
 
-- (void)moveLeft{
+- (BOOL)moveLeft{
     if (![vwalls[(int)point.y][(int)point.x] boolValue]){
-        //NSLog(@"can move left");
+        NSLog(@"MazeView: can move left");
         point.x--;
+        return true;
     }
     else {
-        //NSLog(@"can't move left");
+        NSLog(@"MazeView: can't move left");
+        return false;
     }
 }
 
-- (void)moveRight{
+- (BOOL)moveRight{
     if (![vwalls[(int)point.y][(int)point.x+1] boolValue]){
-        //NSLog(@"can move right");
+        NSLog(@"MazeView: can move right");
         point.x++;
+        return true;
     }
     else {
-        //NSLog(@"can't move right");
+        NSLog(@"MazeView: can't move right");
+        return false;
     }
 }
 
