@@ -213,12 +213,39 @@
     [p addLineToPoint:CGPointMake(w-dist*hallWidth, w-dist*hallWidth)];
     p.lineWidth = lineWidth;
     [p stroke];
+    
+    // draw arrows to signify can move either ight or left
+    if ([self canTurnLeft]){
+        p = [UIBezierPath bezierPath];
+        CGContextSetRGBStrokeColor(contextref,0,1,0,1);
+        p.lineWidth = 5;
+        [p moveToPoint:CGPointMake(30, w/2+30)];
+        [p addLineToPoint:CGPointMake(0, w/2)];
+        [p addLineToPoint:CGPointMake(30, w/2-30)];
+        [p addLineToPoint:CGPointMake(0, w/2)];
+        [p addLineToPoint:CGPointMake(70, w/2)];
+        [p stroke];
+    }
+    if ([self canTurnRight]){
+        p = [UIBezierPath bezierPath];
+        CGContextSetRGBStrokeColor(contextref,0,1,0,1);
+        p.lineWidth = 5;
+        [p moveToPoint:CGPointMake(w-30, w/2+30)];
+        [p addLineToPoint:CGPointMake(w, w/2)];
+        [p addLineToPoint:CGPointMake(w-30, w/2-30)];
+        [p addLineToPoint:CGPointMake(w, w/2)];
+        [p addLineToPoint:CGPointMake(w-70, w/2)];
+        [p stroke];
+    }
 }
 
+- (BOOL)canMoveForward{
+    return dist > 0;
+}
 - (void)moveUp{
     dist--;
-    if (dist < 1){
-        dist = 1;
+    if (dist < 0){
+        dist = 0;
         NSLog(@"TestView: can't move up");
     }
     else {
@@ -232,6 +259,10 @@
         }
         NSLog(@"TestView: can move up");
     }
+    //NSLog(@"dist:%d",dist);
+}
+- (BOOL)canMoveBack{
+    return dist < INITDIST;
 }
 - (void)moveDown{
     dist++;
@@ -250,31 +281,38 @@
         }
         NSLog(@"TestView: can move back");
     }
+    //NSLog(@"dist:%d",dist);
 }
 - (BOOL)moveLeft{
     for (NSNumber *n in leftHalls){
-        if ([n intValue] == 1){
-            NSLog(@"TestView: can turn left");
+        if ([n intValue] == 0){
+            //NSLog(@"TestView: can turn left");
             //[self reset];
             return true;
         }
     }
-    NSLog(@"TestVIew: can't turn left");
+    //NSLog(@"TestVIew: can't turn left");
     return false;
+}
+- (BOOL)canTurnLeft{
+    return [leftHalls containsObject:[NSNumber numberWithInt:0]];
 }
 - (BOOL)moveRight{
     for (NSNumber *n in rightHalls){
-        if ([n intValue] == 1){
-            NSLog(@"TestView: can turn right");
+        if ([n intValue] == 0){
+            //NSLog(@"TestView: can turn right");
             //[self reset];
             return true;
         }
     }
-    NSLog(@"TestView: can't turn right");
+    //NSLog(@"TestView: can't turn right");
     return false;
 }
+- (BOOL)canTurnRight{
+    return [rightHalls containsObject:[NSNumber numberWithInt:0]];
+}
 
-- (void)reset:(int)nextDist leftHalls:(NSArray*)nextLeftHalls rightHalls:(NSArray*)nextRightHalls{
+- (void)resetDist:(int)nextDist leftHalls:(NSArray*)nextLeftHalls rightHalls:(NSArray*)nextRightHalls{
     //dist = arc4random_uniform(7)+3; // 0-9
     dist = nextDist;
     INITDIST = dist;
@@ -294,6 +332,7 @@
     }];
     leftHalls = nextLeftHalls;*/
     leftHalls = [NSMutableArray arrayWithArray:nextLeftHalls];
+    NSLog(@"leftHalls:%@",leftHalls);
     
     /*NSMutableArray *nextRightHalls = [[NSMutableArray alloc] init];
     for (int i = 0; i < 2; i++){

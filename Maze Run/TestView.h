@@ -14,5 +14,11 @@
 - (void)moveDown;
 - (BOOL)moveLeft;
 - (BOOL)moveRight;
+- (BOOL)canMoveForward;
+- (BOOL)canMoveBack;
+- (BOOL)canTurnLeft;
+- (BOOL)canTurnRight;
+
+- (void)resetDist:(int)nextDist leftHalls:(NSArray*)nextLeftHalls rightHalls:(NSArray*)nextRightHalls;
 
 @end

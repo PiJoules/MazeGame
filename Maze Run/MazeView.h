@@ -13,10 +13,10 @@
 - (id)initWithFrame:(CGRect)frame startingPoint:(CGPoint)startingPoint rowCount:(int)rows colCount:(int)cols horizontalWalls:(NSMutableArray*)horizontalwalls verticalWalls:(NSMutableArray*)verticalwalls;
 - (void)setNewRows:(int)rows andCols:(int)cols;
 
-- (BOOL)moveUp;
+/*- (BOOL)moveUp;
 - (BOOL)moveDown;
 - (BOOL)moveLeft;
-- (BOOL)moveRight;
+- (BOOL)moveRight;*/
 - (CGPoint)getCurrentPos;
 - (void)setCurrentPos:(CGPoint)nextPoint;
 

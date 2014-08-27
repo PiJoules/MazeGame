@@ -12,9 +12,9 @@
 #import <mach/mach.h>
 
 #define LEFT 0
-#define FORWARDS 1
+#define UP 1
 #define RIGHT 2
-#define BACKWARDS 3
+#define DOWN 3
 
 @interface MazeViewController ()
 
@@ -30,7 +30,7 @@
     
     int currentX;
     int currentY;
-    int TDDirections[4]; // top down directions; [left up right down];
+    int direction;
     
     NSMutableArray *leftHalls;
     NSMutableArray *rightHalls;
@@ -82,91 +82,81 @@
     // generate random maze
     [self generateMazeFrom:MazeCells startingAtX:currentX Y:currentY];
     if ([hwalls[1][0] boolValue]){ // make right forward if wall beneath starting pos
-        [self changeDirections:RIGHT];
+        [self changeDirection:RIGHT];
     }
     else if ([vwalls[0][1] boolValue]){
-        [self changeDirections:BACKWARDS];
+        [self changeDirection:DOWN];
     }
+    NSLog(@"init direction:%d",direction);
+    NSLog(@"init distance:%d",[self getDist]);
+    [tv resetDist:[self getDist] leftHalls:leftHalls rightHalls:rightHalls];
     
     // add subviews
     mv = [[MazeView alloc] initWithFrame:CGRectMake(0, 0, w, w) startingPoint:CGPointMake(currentX, currentY) rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
-    [self.view addSubview:mv];
+    //[self.view addSubview:mv];
     tv = [[TestView alloc] initWithFrame:CGRectMake(0, 0, w, w)];
+    [self.view addSubview:tv];
     
     // start the draw loop
     [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(drawLoop) userInfo:nil repeats:true];
 }
 
-- (void)changeDirections:(int)nextDir{
-    if (nextDir == LEFT){
-        TDDirections[0] = FORWARDS;
-        TDDirections[1] = RIGHT;
-        TDDirections[2] = BACKWARDS;
-        TDDirections[3] = LEFT;
-    }
-    else if (nextDir == FORWARDS){
-        TDDirections[0] = LEFT;
-        TDDirections[1] = FORWARDS;
-        TDDirections[2] = RIGHT;
-        TDDirections[3] = BACKWARDS;
-    }
-    else if (nextDir == RIGHT){
-        TDDirections[0] = BACKWARDS;
-        TDDirections[1] = LEFT;
-        TDDirections[2] = FORWARDS;
-        TDDirections[3] = RIGHT;
-    }
-    else if (nextDir == BACKWARDS){
-        TDDirections[0] = RIGHT;
-        TDDirections[1] = BACKWARDS;
-        TDDirections[2] = LEFT;
-        TDDirections[3] = FORWARDS;
-    }
+- (void)changeDirection:(int)nextDir{
+    direction = nextDir;
 }
 
 - (void)rotate:(BOOL)clockwise{
-    if (TDDirections[0] == FORWARDS){
-        if (clockwise) [self changeDirections:FORWARDS];
-        else [self changeDirections:BACKWARDS];
+    if (direction == LEFT){
+        if (clockwise) [self changeDirection:UP];
+        else [self changeDirection:DOWN];
     }
-    else if (TDDirections[1] == FORWARDS){
-        if (clockwise) [self changeDirections:RIGHT];
-        else [self changeDirections:LEFT];
+    else if (direction == UP){
+        if (clockwise) [self changeDirection:RIGHT];
+        else [self changeDirection:LEFT];
     }
-    else if (TDDirections[2] == FORWARDS){
-        if (clockwise) [self changeDirections:BACKWARDS];
-        else [self changeDirections:FORWARDS];
+    else if (direction == RIGHT){
+        if (clockwise) [self changeDirection:DOWN];
+        else [self changeDirection:UP];
     }
-    else if (TDDirections[3] == FORWARDS){
-        if (clockwise) [self changeDirections:LEFT];
-        else [self changeDirections:RIGHT];
+    else if (direction == DOWN){
+        if (clockwise) [self changeDirection:LEFT];
+        else [self changeDirection:RIGHT];
     }
 }
 
 - (void)swipeUp{
-    if ([[self.view subviews] containsObject:mv]){
+    /*if ([[self.view subviews] containsObject:mv]){
         if ([mv moveUp]){
-            [self changeDirections:FORWARDS];
+            //[self changeDirections:FORWARDS];
             [tv moveUp];
         }
-    }
-    [mv moveUp];
+    }*/
+    //[mv moveUp];
     [tv moveUp];
+    NSLog(@"dist:%d",[self getDist]);
     [self checkWin];
 }
 - (void)swipeDown{
-    [mv moveDown];
+    //[mv moveDown];
     [tv moveDown];
+    NSLog(@"dist:%d",[self getDist]);
     [self checkWin];
 }
 - (void)swipeLeft{
-    [mv moveLeft];
-    if ([tv moveLeft]) [self rotate:!CLOCKWISE];;
+    //[mv moveLeft];
+    if ([tv canTurnLeft]){
+        [self rotate:!CLOCKWISE];
+        //NSLog(@"dist:%d",[self getDist]);
+        
+    }
     [self checkWin];
 }
 - (void)swipeRight{
-    [mv moveRight];
-    if ([tv moveRight]) [self rotate:CLOCKWISE];;
+    //[mv moveRight];
+    if ([tv canTurnRight]){
+        [self rotate:CLOCKWISE];
+        //NSLog(@"dist:%d",[self getDist]);
+    }
     [self checkWin];
 }
 
@@ -182,38 +172,54 @@
 }
 
 - (int)getDist{
-    if (TDDirections[0] == FORWARDS){
+    [leftHalls removeAllObjects];
+    [rightHalls removeAllObjects];
+    if (direction == LEFT){
         for (int x = mv.getCurrentPos.x; x >= 0; x--){
-            if (![hwalls[(int)mv.getCurrentPos.y][x] boolValue])
+            if (![hwalls[(int)mv.getCurrentPos.y][x] boolValue]){
+                [rightHalls addObject:[NSNumber numberWithInt:mv.getCurrentPos.x-x]];
+            }
+            if (![hwalls[(int)mv.getCurrentPos.y+1][x] boolValue]){
+                [leftHalls addObject:[NSNumber numberWithInt:mv.getCurrentPos.x-x]];
+            }
             if ([vwalls[(int)mv.getCurrentPos.y][x] boolValue]) return mv.getCurrentPos.x-x;
         }
     }
-    else if (TDDirections[1] == FORWARDS){
+    else if (direction == UP){
         for (int y = mv.getCurrentPos.y; y >= 0; y--){
+            if (![vwalls[y][(int)mv.getCurrentPos.x] boolValue]){
+                [leftHalls addObject:[NSNumber numberWithInt:mv.getCurrentPos.y-y]];
+            }
+            if (![vwalls[y][(int)mv.getCurrentPos.x+1] boolValue]){
+                [rightHalls addObject:[NSNumber numberWithInt:mv.getCurrentPos.y-y]];
+            }
             if ([hwalls[y][(int)mv.getCurrentPos.x] boolValue]) return mv.getCurrentPos.y-y;
         }
     }
-    else if (TDDirections[2] == FORWARDS){
+    else if (direction == RIGHT){
         for (int x = mv.getCurrentPos.x+1; x < cols+1; x++){
+            if (![hwalls[(int)mv.getCurrentPos.y+1][x] boolValue]){
+                [rightHalls addObject:[NSNumber numberWithInt:x-mv.getCurrentPos.x-1]];
+            }
+            if (![hwalls[(int)mv.getCurrentPos.y][x] boolValue]){
+                [leftHalls addObject:[NSNumber numberWithInt:x-mv.getCurrentPos.x-1]];
+            }
             if ([vwalls[(int)mv.getCurrentPos.y][x] boolValue]) return x-mv.getCurrentPos.x-1;
         }
     }
-    else if (TDDirections[3] == FORWARDS){
+    else if (direction == DOWN){
         for (int y = mv.getCurrentPos.y+1; y < rows+1; y++){
+            if (![vwalls[y][(int)mv.getCurrentPos.x] boolValue]){
+                [rightHalls addObject:[NSNumber numberWithInt:y-mv.getCurrentPos.y-1]];
+            }
+            if (![vwalls[y][(int)mv.getCurrentPos.x+1] boolValue]){
+                [rightHalls addObject:[NSNumber numberWithInt:y-mv.getCurrentPos.y-1]];
+            }
             if ([hwalls[y][(int)mv.getCurrentPos.x] boolValue]) return y-mv.getCurrentPos.y-1;
         }
     }
     return 0;
 }
-
-/*- (NSArray*)getLeftHalls{
-    NSMutableArray *leftHalls = [[NSMutableArray alloc] init];
-    if (TDDirections[0] == FORWARDS){
-        for (int x = mv.getCurrentPos.x; x >= 0; x--){
-            if (![hwalls[(int)mv.getCurrentPos.y][x] boolValue]) leftHalls addObject:<#(id)#>
-        }
-    }
-}*/
 
 - (void)checkWin{
     CGPoint currentPos = [mv getCurrentPos];
@@ -222,7 +228,6 @@
         //[mv setNewRows:++rows andCols:++cols];
         //[self reset];
     }
-    NSLog(@"%d",[self getDist]);
 }
 
 - (void)reset{
