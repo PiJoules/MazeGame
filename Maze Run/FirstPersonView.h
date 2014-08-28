@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TestView : UIView
+@interface FirstPersonView : UIView
 
 - (void)moveUp;
 - (void)moveDown;

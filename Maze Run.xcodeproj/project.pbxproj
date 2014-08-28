@@ -7,8 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE381BB019A95CFF006E4C9A /* TestView.m in Sources */ = {isa = PBXBuildFile; fileRef = CE381BAF19A95CFF006E4C9A /* TestView.m */; };
-		CE381BB319A95D10006E4C9A /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE381BB219A95D10006E4C9A /* TestViewController.m */; };
+		CE381BB019A95CFF006E4C9A /* FirstPersonView.m in Sources */ = {isa = PBXBuildFile; fileRef = CE381BAF19A95CFF006E4C9A /* FirstPersonView.m */; };
 		CE63840C19A68ED200EECEDB /* MazeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CE63840B19A68ED200EECEDB /* MazeCell.m */; };
 		CE6EE5741998492200233AF3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6EE5731998492200233AF3 /* Foundation.framework */; };
 		CE6EE5761998492200233AF3 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE6EE5751998492200233AF3 /* CoreGraphics.framework */; };
@@ -38,10 +37,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		CE381BAE19A95CFF006E4C9A /* TestView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestView.h; sourceTree = "<group>"; };
-		CE381BAF19A95CFF006E4C9A /* TestView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestView.m; sourceTree = "<group>"; };
-		CE381BB119A95D10006E4C9A /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
-		CE381BB219A95D10006E4C9A /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
+		CE381BAE19A95CFF006E4C9A /* FirstPersonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirstPersonView.h; sourceTree = "<group>"; };
+		CE381BAF19A95CFF006E4C9A /* FirstPersonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirstPersonView.m; sourceTree = "<group>"; };
 		CE63840A19A68ED200EECEDB /* MazeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MazeCell.h; sourceTree = "<group>"; };
 		CE63840B19A68ED200EECEDB /* MazeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MazeCell.m; sourceTree = "<group>"; };
 		CE6EE5701998492200233AF3 /* Maze Run.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Maze Run.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,10 +132,8 @@
 				CE6EE5881998492200233AF3 /* MazeViewController.h */,
 				CE6EE5891998492200233AF3 /* MazeViewController.m */,
 				CE6EE57A1998492200233AF3 /* Supporting Files */,
-				CE381BAE19A95CFF006E4C9A /* TestView.h */,
-				CE381BAF19A95CFF006E4C9A /* TestView.m */,
-				CE381BB119A95D10006E4C9A /* TestViewController.h */,
-				CE381BB219A95D10006E4C9A /* TestViewController.m */,
+				CE381BAE19A95CFF006E4C9A /* FirstPersonView.h */,
+				CE381BAF19A95CFF006E4C9A /* FirstPersonView.m */,
 			);
 			path = "Maze Run";
 			sourceTree = "<group>";
@@ -271,10 +266,9 @@
 			files = (
 				CE6EE5AA19984A5700233AF3 /* MazeView.m in Sources */,
 				CE6EE58A1998492200233AF3 /* MazeViewController.m in Sources */,
-				CE381BB319A95D10006E4C9A /* TestViewController.m in Sources */,
 				CE6EE5841998492200233AF3 /* AppDelegate.m in Sources */,
 				CE6EE5801998492200233AF3 /* main.m in Sources */,
-				CE381BB019A95CFF006E4C9A /* TestView.m in Sources */,
+				CE381BB019A95CFF006E4C9A /* FirstPersonView.m in Sources */,
 				CE63840C19A68ED200EECEDB /* MazeCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

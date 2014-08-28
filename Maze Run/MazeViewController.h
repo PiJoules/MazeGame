@@ -8,13 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import "MazeView.h"
-#import "TestView.h"
+#import "FirstPersonView.h"
 
 @interface MazeViewController : UIViewController
 
 @property NSMutableArray *hwalls;
 @property NSMutableArray *vwalls;
 @property MazeView *mv;
-@property TestView *tv;
+@property FirstPersonView *fpv;
 
 @end

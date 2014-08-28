@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Leonard Chan. All rights reserved.
 //
 
-#import "TestView.h"
+#import "FirstPersonView.h"
 
-@implementation TestView{
+@implementation FirstPersonView{
     int lineWidth;
     float w;
     
@@ -59,8 +59,8 @@
     float hallWidth = (w/2)/(dist+1);
     p = [UIBezierPath bezierPath];
     p.lineWidth = lineWidth;
-    [p moveToPoint:CGPointMake([[leftHalls lastObject] intValue]*hallWidth, w-[[leftHalls lastObject] intValue]*hallWidth)];
-    [p addLineToPoint:CGPointMake(w-[[leftHalls lastObject] intValue]*hallWidth, w-[[leftHalls lastObject] intValue]*hallWidth)];
+    [p moveToPoint:CGPointMake(dist*hallWidth, w-dist*hallWidth)];
+    [p addLineToPoint:CGPointMake(w-dist*hallWidth, w-dist*hallWidth)];
     [p stroke];
     
     // draw lines to signify adjascent halls
@@ -259,7 +259,6 @@
         }
         NSLog(@"TestView: can move up");
     }
-    //NSLog(@"dist:%d",dist);
 }
 - (BOOL)canMoveBack{
     return dist < INITDIST;
@@ -281,17 +280,14 @@
         }
         NSLog(@"TestView: can move back");
     }
-    //NSLog(@"dist:%d",dist);
 }
 - (BOOL)moveLeft{
     for (NSNumber *n in leftHalls){
         if ([n intValue] == 0){
-            //NSLog(@"TestView: can turn left");
             //[self reset];
             return true;
         }
     }
-    //NSLog(@"TestVIew: can't turn left");
     return false;
 }
 - (BOOL)canTurnLeft{
@@ -300,12 +296,10 @@
 - (BOOL)moveRight{
     for (NSNumber *n in rightHalls){
         if ([n intValue] == 0){
-            //NSLog(@"TestView: can turn right");
             //[self reset];
             return true;
         }
     }
-    //NSLog(@"TestView: can't turn right");
     return false;
 }
 - (BOOL)canTurnRight{
@@ -313,42 +307,14 @@
 }
 
 - (void)resetDist:(int)nextDist leftHalls:(NSArray*)nextLeftHalls rightHalls:(NSArray*)nextRightHalls{
-    //dist = arc4random_uniform(7)+3; // 0-9
     dist = nextDist;
     INITDIST = dist;
     
-    /*NSMutableArray *nextLeftHalls = [[NSMutableArray alloc] init];
-    for (int i = 0; i < 2; i++){
-        int val = arc4random_uniform(dist);
-        if (arc4random_uniform(2) > 0){
-            if (![nextLeftHalls containsObject:[NSNumber numberWithInt:val]]){
-                [nextLeftHalls addObject:[NSNumber numberWithInt:val]];
-            }
-        }
-    }
-    [nextLeftHalls addObject:[NSNumber numberWithInt:dist]];
-    [nextLeftHalls sortUsingComparator:^NSComparisonResult(NSNumber *n1, NSNumber *n2){
-        return [n1 compare:n2];
-    }];
-    leftHalls = nextLeftHalls;*/
     leftHalls = [NSMutableArray arrayWithArray:nextLeftHalls];
     NSLog(@"leftHalls:%@",leftHalls);
     
-    /*NSMutableArray *nextRightHalls = [[NSMutableArray alloc] init];
-    for (int i = 0; i < 2; i++){
-        int val = arc4random_uniform(dist);
-        if (arc4random_uniform(2) > 0){
-            if (![nextRightHalls containsObject:[NSNumber numberWithInt:val]]){
-                [nextRightHalls addObject:[NSNumber numberWithInt:val]];
-            }
-        }
-    }
-    [nextRightHalls addObject:[NSNumber numberWithInt:dist]];
-    [nextRightHalls sortUsingComparator:^NSComparisonResult(NSNumber *n1, NSNumber *n2){
-        return [n1 compare:n2];
-    }];
-    rightHalls = nextRightHalls;*/
     rightHalls = [NSMutableArray arrayWithArray:nextRightHalls];
+    NSLog(@"rightHalls:%@",rightHalls);
 }
 
 @end

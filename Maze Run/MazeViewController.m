@@ -28,8 +28,6 @@
     int rows;
     int cols;
     
-    int currentX;
-    int currentY;
     int direction;
     
     NSMutableArray *leftHalls;
@@ -41,7 +39,7 @@
 @synthesize hwalls;
 @synthesize vwalls;
 @synthesize mv;
-@synthesize tv;
+@synthesize fpv;
 
 - (void)viewDidLoad
 {
@@ -49,8 +47,6 @@
     
     rows = 10;
     cols = 10;
-    currentX = 0;
-    currentY = 0;
     
     w = [UIScreen mainScreen].bounds.size.width;
     h = [UIScreen mainScreen].bounds.size.height;
@@ -63,39 +59,20 @@
     
     // fill mazeCells and walls array
     MazeCells = [[NSMutableArray alloc] init];
-    for (int y = 0; y < rows+1; y++){
-        if (y < rows){
-            [MazeCells addObject:[[NSMutableArray alloc] init]];
-            [vwalls addObject:[[NSMutableArray alloc] init]];
-        }
-        [hwalls addObject:[[NSMutableArray alloc] init]];
-        for (int x = 0; x < cols+1; x++){
-            if (x < cols && y < rows) [MazeCells[y] addObject:[[MazeCell alloc] initWithX:x Y:y]];
-            if (y < rows) [vwalls[y] addObject:[NSNumber numberWithBool:true]];
-            if (x < cols) [hwalls[y] addObject:[NSNumber numberWithBool:true]];
-        }
-    }
+    
+    // initialize subviews
+    mv = [[MazeView alloc] initWithFrame:CGRectMake(0, 0, w, w) startingPoint:CGPointMake(0, 0) rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
+    fpv = [[FirstPersonView alloc] initWithFrame:CGRectMake(0, 0, w, w)];
+    
+    // initialize halls
+    leftHalls = [[NSMutableArray alloc] init];
+    rightHalls = [[NSMutableArray alloc] init];
     
     // add views
     [self addControls];
+    [self.view addSubview:fpv];
     
-    // generate random maze
-    [self generateMazeFrom:MazeCells startingAtX:currentX Y:currentY];
-    if ([hwalls[1][0] boolValue]){ // make right forward if wall beneath starting pos
-        [self changeDirection:RIGHT];
-    }
-    else if ([vwalls[0][1] boolValue]){
-        [self changeDirection:DOWN];
-    }
-    NSLog(@"init direction:%d",direction);
-    NSLog(@"init distance:%d",[self getDist]);
-    [tv resetDist:[self getDist] leftHalls:leftHalls rightHalls:rightHalls];
-    
-    // add subviews
-    mv = [[MazeView alloc] initWithFrame:CGRectMake(0, 0, w, w) startingPoint:CGPointMake(currentX, currentY) rowCount:rows colCount:cols horizontalWalls:hwalls verticalWalls:vwalls];
-    //[self.view addSubview:mv];
-    tv = [[TestView alloc] initWithFrame:CGRectMake(0, 0, w, w)];
-    [self.view addSubview:tv];
+    [self reset];
     
     // start the draw loop
     [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(drawLoop) userInfo:nil repeats:true];
@@ -103,6 +80,12 @@
 
 - (void)changeDirection:(int)nextDir{
     direction = nextDir;
+}
+
+- (void)turnAround{
+    direction = (direction+2)%4;
+    int d = [self getDist];
+    [fpv resetDist:d leftHalls:leftHalls rightHalls:rightHalls];
 }
 
 - (void)rotate:(BOOL)clockwise{
@@ -125,55 +108,56 @@
 }
 
 - (void)swipeUp{
-    /*if ([[self.view subviews] containsObject:mv]){
-        if ([mv moveUp]){
-            //[self changeDirections:FORWARDS];
-            [tv moveUp];
-        }
-    }*/
-    //[mv moveUp];
-    [tv moveUp];
-    NSLog(@"dist:%d",[self getDist]);
+    if (direction == LEFT) [mv moveLeft];
+    else if (direction == UP) [mv moveUp];
+    else if (direction == RIGHT) [mv moveRight];
+    else if (direction == DOWN) [mv moveDown];
+    [fpv moveUp];
+    NSLog(@"direction:%d",direction);
     [self checkWin];
 }
 - (void)swipeDown{
-    //[mv moveDown];
-    [tv moveDown];
-    NSLog(@"dist:%d",[self getDist]);
+    if (direction == LEFT) [mv moveRight];
+    else if (direction == UP) [mv moveDown];
+    else if (direction == RIGHT) [mv moveLeft];
+    else if (direction == DOWN) [mv moveUp];
+    [fpv moveDown];
+    NSLog(@"direction:%d",direction);
     [self checkWin];
 }
 - (void)swipeLeft{
-    //[mv moveLeft];
-    if ([tv canTurnLeft]){
+    if ([fpv canTurnLeft]){
         [self rotate:!CLOCKWISE];
-        //NSLog(@"dist:%d",[self getDist]);
-        
+        int d = [self getDist];
+        [fpv resetDist:d leftHalls:leftHalls rightHalls:rightHalls];
     }
     [self checkWin];
 }
 - (void)swipeRight{
-    //[mv moveRight];
-    if ([tv canTurnRight]){
+    if ([fpv canTurnRight]){
         [self rotate:CLOCKWISE];
-        //NSLog(@"dist:%d",[self getDist]);
+        int d = [self getDist];
+        [fpv resetDist:d leftHalls:leftHalls rightHalls:rightHalls];
     }
     [self checkWin];
 }
 
 - (void)switchView{
-    if ([[self.view subviews] containsObject:tv]){
-        [tv removeFromSuperview];
+    if ([[self.view subviews] containsObject:fpv]){
+        [fpv removeFromSuperview];
         [self.view addSubview:mv];
     }
     else{
         [mv removeFromSuperview];
-        [self.view addSubview:tv];
+        [self.view addSubview:fpv];
     }
 }
 
 - (int)getDist{
     [leftHalls removeAllObjects];
     [rightHalls removeAllObjects];
+    [leftHalls addObject:[NSNumber numberWithInt:-1]];
+    [rightHalls addObject:[NSNumber numberWithInt:-1]];
     if (direction == LEFT){
         for (int x = mv.getCurrentPos.x; x >= 0; x--){
             if (![hwalls[(int)mv.getCurrentPos.y][x] boolValue]){
@@ -198,10 +182,10 @@
     }
     else if (direction == RIGHT){
         for (int x = mv.getCurrentPos.x+1; x < cols+1; x++){
-            if (![hwalls[(int)mv.getCurrentPos.y+1][x] boolValue]){
+            if (![hwalls[(int)mv.getCurrentPos.y+1][x-1] boolValue]){
                 [rightHalls addObject:[NSNumber numberWithInt:x-mv.getCurrentPos.x-1]];
             }
-            if (![hwalls[(int)mv.getCurrentPos.y][x] boolValue]){
+            if (![hwalls[(int)mv.getCurrentPos.y][x-1] boolValue]){
                 [leftHalls addObject:[NSNumber numberWithInt:x-mv.getCurrentPos.x-1]];
             }
             if ([vwalls[(int)mv.getCurrentPos.y][x] boolValue]) return x-mv.getCurrentPos.x-1;
@@ -209,11 +193,11 @@
     }
     else if (direction == DOWN){
         for (int y = mv.getCurrentPos.y+1; y < rows+1; y++){
-            if (![vwalls[y][(int)mv.getCurrentPos.x] boolValue]){
+            if (![vwalls[y-1][(int)mv.getCurrentPos.x] boolValue]){
                 [rightHalls addObject:[NSNumber numberWithInt:y-mv.getCurrentPos.y-1]];
             }
-            if (![vwalls[y][(int)mv.getCurrentPos.x+1] boolValue]){
-                [rightHalls addObject:[NSNumber numberWithInt:y-mv.getCurrentPos.y-1]];
+            if (![vwalls[y-1][(int)mv.getCurrentPos.x+1] boolValue]){
+                [leftHalls addObject:[NSNumber numberWithInt:y-mv.getCurrentPos.y-1]];
             }
             if ([hwalls[y][(int)mv.getCurrentPos.x] boolValue]) return y-mv.getCurrentPos.y-1;
         }
@@ -230,6 +214,7 @@
     }
 }
 
+// reset MazeCells, walls, halls, direction, mv view, and fpv view
 - (void)reset{
     [mv setCurrentPos:CGPointMake(0, 0)];
     
@@ -250,12 +235,22 @@
     }
     
     [self generateMazeFrom:MazeCells startingAtX:0 Y:0];
+    
+    if ([hwalls[1][0] boolValue]){ // make right forward if wall beneath starting pos
+        [self changeDirection:RIGHT];
+    }
+    else if ([vwalls[0][1] boolValue]){
+        [self changeDirection:DOWN];
+    }
+    
+    int d = [self getDist];
+    [fpv resetDist:d leftHalls:leftHalls rightHalls:rightHalls];
 }
 
 - (void)drawLoop{
     //[self report_memory];
     [mv setNeedsDisplay];
-    [tv setNeedsDisplay];
+    [fpv setNeedsDisplay];
 }
 
 - (void)report_memory{
@@ -344,19 +339,19 @@
 // get neighboring cells that have not been visited
 // will return array of length zero if all neighbors were visited
 - (NSMutableArray*)neighborsAtX:(int)x Y:(int)y inMaze:(NSMutableArray*)mazeCells{
-    int w = [mazeCells[0] count];
-    int h = [mazeCells count];
+    int colCount = [mazeCells[0] count];
+    int rowCount = [mazeCells count];
     NSMutableArray *neighbors = [[NSMutableArray alloc] init];
     if (x > 0){
         if (![mazeCells[y][x-1] visited]) [neighbors addObject:mazeCells[y][x-1]];
     }
-    if (x < w-1){
+    if (x < colCount-1){
         if (![mazeCells[y][x+1] visited]) [neighbors addObject:mazeCells[y][x+1]];
     }
     if (y > 0){
         if (![mazeCells[y-1][x] visited]) [neighbors addObject:mazeCells[y-1][x]];
     }
-    if (y < h-1){
+    if (y < rowCount-1){
         if (![mazeCells[y+1][x] visited]) [neighbors addObject:mazeCells[y+1][x]];
     }
     return neighbors;
@@ -391,6 +386,7 @@
     
     // add turn around button
     UIButton *rotate = [UIButton buttonWithType:UIButtonTypeSystem];
+    [rotate addTarget:self action:@selector(turnAround) forControlEvents:UIControlEventTouchUpInside];
     [rotate setTitle:@"Turn Around" forState:UIControlStateNormal];
     rotate.backgroundColor = [UIColor colorWithRed:0.878 green:1 blue:1 alpha:1];
     rotate.frame = CGRectMake(0, (h-w)/2+w+h1/2, w1, h1);
